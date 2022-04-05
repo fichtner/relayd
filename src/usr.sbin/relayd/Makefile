@@ -19,6 +19,8 @@ SRCS+=	parse.y \
 	control.c \
 	hce.c \
 	log.c \
+	md5.c \
+	sha1.c \
 	name2id.c \
 	pfe.c \
 	pfe_filter.c \
@@ -42,16 +44,13 @@ SRCS+=	buffer.c \
 	select.c \
 	signal.c
 
-CFLAGS+=	-DSHA1_DIGEST_LENGTH=SHA_DIGEST_LENGTH \
-		-DSHA1_DIGEST_STRING_LENGTH=SHA_DIGEST_LENGTH \
-		-DOPENSSL_NO_SHA -DOPENSSL_NO_MD5 \
-		-D__dead='' \
+CFLAGS+=	-D__dead='' \
 		-DHAVE_CONFIG_H
 CFLAGS+=	-I${.CURDIR} -I${.CURDIR}/../../lib/libutil \
 		-I${.CURDIR}/../../../libevent
 CLEANFILES+=	y.tab.h
 
-LDADD=		-lmd -L${PREFIX}/lib ${LIBEVENT} -lssl -lcrypto
+LDADD=		-L${PREFIX}/lib ${LIBEVENT} -lssl -lcrypto
 DPADD=		${LIBEVENT} ${LIBSSL} ${LIBCRYPTO}
 
 .include <bsd.prog.mk>

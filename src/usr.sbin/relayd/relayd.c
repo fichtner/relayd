@@ -28,6 +28,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <sys/hash.h>
+#include <sys/types.h>
 
 #include <net/if.h>
 #include <netinet/in.h>
@@ -45,12 +46,8 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <pwd.h>
-#ifdef __FreeBSD__
-#include <sha.h>
-#else
-#include <sha1.h>
-#endif
-#include <md5.h>
+#include "sha1.h"
+#include "md5.h"
 
 #include <openssl/ssl.h>
 
@@ -1362,16 +1359,20 @@ char *
 digeststr(enum digest_type type, const u_int8_t *data, size_t len, char *buf)
 {
 	switch (type) {
-	case DIGEST_SHA1:
-#ifdef __FreeBSD__
-		return (SHA1_Data(data, len, buf));
-#else
-		return (SHA1Data(data, len, buf));
-#endif
-		break;
-	case DIGEST_MD5:
-		return (MD5Data(data, len, buf));
-		break;
+	case DIGEST_SHA1: {
+		SHA1_CTX context;
+		SHA1Init(&context);
+		SHA1Update(&context, data, len);
+		SHA1Final((u_int8_t *)buf, &context);
+		return (buf);
+	}
+	case DIGEST_MD5: {
+		MD5_CTX context;
+		MD5Init(&context);
+		MD5Update(&context, data, len);
+		MD5Final((u_int8_t *)buf, &context);
+		return (buf);
+	}
 	default:
 		break;
 	}
